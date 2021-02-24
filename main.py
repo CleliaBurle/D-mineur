@@ -82,6 +82,120 @@ def show_nb_mines(nb_neighboring_mines, col, lines):
                                fill=color[nb_neighboring_mines-1], font='Arial 22')
 
 
+def nb_mines_adj(col, line):
+    if col > 1:
+        min_col = col - 1
+    else:
+        min_col = 1
+    if col < nb_col:
+        max_col = col + 1
+    else:
+        max_col = col
+    if line > 1:
+        min_lig = line - 1
+    else:
+        min_lig = 1
+    if line < nb_lines:
+        max_lig = line + 1
+    else:
+        max_lig = line
+    txtinfo = ""
+    nb_mines = 0
+    index_line = min_lig
+    while index_line <= max_lig:
+        index_col = min_col
+        while index_col <= max_col:
+            if tab_m[index_col,index_line] == 9:
+                nb_mines += 1
+            index_col = index_col + 1
+        index_line = index_line + 1
+    return nb_mines
+
+def vide_plage_zero(col, line):
+    global nb_hidden_mines, nb_seen_mines
+    if tab_j[col, line] != 0:
+        if tab_j[col, line] == "d":
+            nb_hidden_mines += 1
+            nb_seen_mines -= 1
+            canvas.create_rectangle((col-1)*dim+gap+3, (line-1)*dim+gap+3,
+                                    col*dim+gap-3, line*dim+gap-3,
+                                    width=0, fill="seashell2")
+            tab_j[col, line] = 0
+            nb_seen_mines = nb_seen_mines + 1
+            if col > 1:
+                nb_neighboring_mines = nb_mines_adj(col-1, line)
+                if nb_neighboring_mines == 0:
+                    vide_plage_zero(col-1, line)
+                else:
+                    show_nb_mines(nb_neighboring_mines, col-1, line)
+            if col < nb_col:
+                nb_neighboring_mines = nb_mines_adj(col+1, line)
+                if nb_neighboring_mines == 0:
+                    vide_plage_zero(col+1, line)
+                else:
+                    show_nb_mines(nb_neighboring_mines, col+1, line)
+            if line > 1:
+                nb_neighboring_mines = nb_mines_adj(col, line-1)
+                if nb_neighboring_mines == 0:
+                    vide_plage_zero(col, line-1)
+                else:
+                    show_nb_mines(nb_neighboring_mines, col, line-1)
+            if line < nb_lines:
+                nb_neighboring_mines = nb_mines_adj (col, line+1)
+                if nb_neighboring_mines == 0:
+                    vide_plage_zero(col, line+1)
+                else:
+                    show_nb_mines(nb_neighboring_mines, col, line+1)
+                if col > 1 and line > 1:
+                    nb_neighboring_mines = nb_mines_adj(col-1, line-1)
+                    if nb_neighboring_mines == 0:
+                        vide_plage_zero(col-1, line-1)
+                    else:
+                        show_nb_mines(nb_neighboring_mines, col-1, line-1)
+                if col > 1 and line < nb_lines:
+                    nb_neighboring_mines = nb_mines_adj(col-1, line+1)
+                    if nb_neighboring_mines == 0:
+                        vide_plage_zero(col-1, line+1)
+                    else:
+                        show_nb_mines(nb_neighboring_mines, col-1, line+1)
+                if col < nb_col and line > 1:
+                    nb_neighboring_mines = nb_mines_adj(col+1, line-1)
+                    if nb_neighboring_mines == 0:
+                        vide_plage_zero(col+1, line-1)
+                    else:
+                        show_nb_mines (nb_neighboring_mines, col+1, line-1)
+                if col < nb_col and line < nb_lines:
+                    nb_neighboring_mines = nb_mines_adj(col+1, line+1)
+                    if nb_neighboring_mines == 0:
+                        vide_plage_zero(col+1, line+1)
+                    else:
+                        show_nb_mines(nb_neighboring_mines, col+1, line+1)
+                show_counter()
+
+def lose():
+    global play
+    play = False
+    nline = 0
+    while nline < nb_lines:
+        n_col = 1
+        nline += 1
+        while n_col <= nb_col:
+            if tab_m[n_col, nline] == 9:
+                if tab_j[n_col, nline] == "?":
+                    canvas.create_image(n_col*dim-dim//2+gap, nline*dim-dim//2+gap, image=im_mine)
+                elif tab_j[n_col, nline] == "":
+                    canvas.create_image(n_col*dim-dim//2+gap, nline*dim-dim//2+gap, image=im_mine)
+                else:
+                    if tab_j[n_col, nline] == "d":
+                        canvas.create_image(n_col*dim-dim//2+gap, nline*dim-dim//2+gap, image = im_erreur)
+                n_col = n_col+1
+    canvas.create_text((nb_col / 2) * dim - 15 + gap, (nb_lines / 2) * dim - 5 + gap, text='Lose !', fill='black', font='Arial 50')
+
+def win():
+    canvas.create_text((nb_col/2)*dim-15+gap, (nb_lines/2)*dim-5+gap, text='Well done !', fill='black', font='Arial 50')
+    fen.update_idletasks()
+
+
 fen = Tk()
 fen.title("Démineur")
 fen.resizable(width=False, height=False)
@@ -89,6 +203,9 @@ fen.resizable(width=False, height=False)
 nb_col, nb_lines, nb_mines = 0, 0, 0
 dim, gap, nb_seen_mines = 30, 3, 0
 
+im_mine = PhotoImage(file = "minej.gif")
+im_erreur = PhotoImage(file = "croixj.gif")
+im_flag = PhotoImage(file = "drapeauj.gif")
 tab_m = {}
 tab_j = {}
 
