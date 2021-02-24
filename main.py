@@ -49,7 +49,17 @@ def game_init():
                     nb_neighboring_mines += 1
 
 
-
+def level_init():
+    global nb_col, nb_lig, nb_mines
+    niveau = choix.get()
+    if niveau == 1:
+        nb_col, nb_lig, nb_mines = 10, 10, 12# niveau avancé el
+    if niveau == 2:
+        nb_col, nb_lig, nb_mines = 15, 15, 30# niveau expert
+    else:
+        nb_col, nb_lig, nb_mines = 20, 20, 50#
+    canvas.configure(width=(nb_col*dim)+gap, height=(nb_lig*dim)+gap)
+    game_init()
 
 nb_col, nb_lines, nb_mines = 0,0,0
 dim, gap, nb_seen_mines = 30, 3, 0
@@ -59,3 +69,6 @@ tab_j = {}
 
 root = tkinter.Tk()
 canvas = Canvas(root, width=10, height=10, bg="black")
+
+choix=IntVar()
+choix.set(1)
