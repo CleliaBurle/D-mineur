@@ -4,5 +4,5 @@
 - ``` pip install pygame ```
 - ``` pip install Tkinter ```
 
-###Pour Lancer 
+### Pour Lancer 
 ``` python menugame.py```
